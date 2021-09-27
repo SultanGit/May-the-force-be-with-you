@@ -246,6 +246,11 @@ class Comment_model extends Emerald_Model {
     public function increment_likes(User_model $user): bool
     {
         // TODO: task 3, лайк комментария
+        if ( $user->decrement_likes() ) {
+            $this->likes++;
+            return $this->save('likes', $this->likes);
+        };
+        return false;
     }
 
     public static function get_all_by_replay_id(int $reply_id)
