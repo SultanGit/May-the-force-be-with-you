@@ -27,9 +27,7 @@ use Model\User_model;
       <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
         <li class="nav-item">
             <? if (User_model::is_logged()) {?>
-              <a href="/main_page/logout" class="btn btn-primary my-2 my-sm-0"
-                 data-target="#loginModal">Log out, <?= $user->personaname?>
-              </a>
+              <button class="btn btn-primary my-2 my-sm-0" @click.prevent="logout">Log out, <?= $user->personaname?></button>
             <? } else {?>
               <button type="button" class="btn btn-success my-2 my-sm-0" type="submit" data-toggle="modal"
                       data-target="#loginModal">Log IN

@@ -39,6 +39,12 @@ var app = new Vue({
 	methods: {
 		logout: function () {
 			console.log ('logout');
+			axios.get('/main_page/logout')
+				.then(function (response) {
+					if(response.data.user) {
+						location.reload();
+					}
+				})
 		},
 		logIn: function () {
 			var self= this;
@@ -79,8 +85,10 @@ var app = new Vue({
 				axios.post(
 					'/main_page/comment',
 					comment
-				).then(function () {
-
+				).then(function (response) {
+					if(response.status === 201) {
+						location.reload();
+					}
 				});
 			}
 

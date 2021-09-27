@@ -269,6 +269,41 @@ class User_model extends Emerald_model {
     {
         // TODO: task 4, добавление денег
 
+        /*
+         *  транзакция для отката состояния записи в случае ошибки
+         *  или непридвиденном поведении сложения float при операции update
+         */
+        App::get_s()->start_trans()->execute();
+
+        try {
+            App::get_s()
+                ->from(self::get_table())
+                ->where(['id' => $this->get_id()])
+                ->update(sprintf('wallet_balance = wallet_balance + %s', $sum))
+                ->execute();
+
+            if ( ! App::get_s()->is_affected()) {
+                return FALSE;
+            }
+
+            $user = App::get_s()
+                ->from(self::CLASS_TABLE)
+                ->where(['id' => $this->get_id()])
+                ->select('wallet_balance')
+                ->many();
+
+            if ( ! isset($user[0]['wallet_balance']) || (float)$user[0]['wallet_balance'] !== $this->wallet_balance+$sum) {
+                App::get_s()->rollback()->execute();
+                return FALSE;
+            }
+
+        } catch (Exception $exception) {
+            App::get_s()->rollback()->execute();
+            return FAlSE;
+        }
+
+        App::get_s()->commit()->execute();
+
         return TRUE;
     }
 
@@ -347,6 +382,14 @@ class User_model extends Emerald_model {
     public static function find_user_by_email(string $email): User_model
     {
         // TODO: task 1, аутентификация
+
+        $user = App::get_s()->from(self::CLASS_TABLE)->where(['email' => $email])->select('id')->many();
+
+        if ( isset($user[0]['id']) ) {
+            return new self($user[0]['id']);
+        }
+
+        return new self();
     }
 
     /**

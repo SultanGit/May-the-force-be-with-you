@@ -152,6 +152,7 @@ class Post_model extends Emerald_Model
     public function get_comments():array
     {
        // TODO: task 2, комментирование
+        return Comment_model::get_all_by_assign_id($this->get_id());
     }
 
     /**
@@ -216,6 +217,11 @@ class Post_model extends Emerald_Model
     public function increment_likes(User_model $user): bool
     {
         // TODO: task 3, лайк поста
+        if ( $user->decrement_likes() ) {
+            $this->likes++;
+            return $this->save('likes', $this->likes);
+        };
+        return false;
     }
 
 
